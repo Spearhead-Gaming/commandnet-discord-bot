@@ -1,0 +1,63 @@
+import express from 'express';
+import { config } from './config.js';
+import { validateDataPayload } from './dataPayload.js';
+import {
+    applyPostMessage,
+    applyRolesChanged,
+    applyUsernameChanged,
+    listGuildRoles,
+} from './discordActions.js';
+
+/**
+ * The forumify -> bot half of the contract: forumify pushes role/username/message
+ * changes here, and reads guild data (e.g. role lists for its mapping UI) back out.
+ */
+export function createHttpServer(client) {
+    const app = express();
+    app.use(express.json());
+
+    app.use((req, res, next) => {
+        if (req.header('authorization') !== `Bearer ${config.sharedSecret}`) {
+            res.status(401).json({ error: 'unauthorized' });
+            return;
+        }
+        next();
+    });
+
+    app.get('/ready', (req, res) => {
+        res.sendStatus(client.isReady() ? 200 : 503);
+    });
+
+    app.post('/data', async (req, res) => {
+        try {
+            const payload = validateDataPayload(req.body);
+            if (payload.type === 'RolesChanged') {
+                await applyRolesChanged(client, payload);
+            } else if (payload.type === 'UsernameChanged') {
+                await applyUsernameChanged(client, payload);
+            } else if (payload.type === 'PostMessage') {
+                await applyPostMessage(client, payload);
+            }
+            res.sendStatus(204);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    });
+
+    app.get('/data', async (req, res) => {
+        try {
+            const { type, guildId } = req.query;
+            if (type !== 'roles') {
+                throw new Error(`Unknown type "${type}"`);
+            }
+            if (!guildId) {
+                throw new Error('guildId is required');
+            }
+            res.json(await listGuildRoles(client, String(guildId)));
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    });
+
+    return app;
+}

@@ -1,0 +1,48 @@
+const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage']);
+
+/**
+ * Validates the body forumify POSTs to /data. Every payload type carries guildId -
+ * that's what makes this bot multi-guild instead of assuming one server.
+ */
+export function validateDataPayload(body) {
+    if (!body || typeof body !== 'object') {
+        throw new Error('Payload must be an object');
+    }
+
+    // BotService sends payloads as JSON-LD, which puts the discriminator in @type, not
+    // type - accept whichever is present so plain-JSON callers still work too.
+    const type = body.type ?? body['@type'];
+    const { guildId } = body;
+    if (!KNOWN_TYPES.has(type)) {
+        throw new Error(`Unknown payload type "${type}"`);
+    }
+    if (!guildId) {
+        throw new Error('guildId is required');
+    }
+
+    switch (type) {
+        case 'RolesChanged':
+            if (!body.discordIdentifier) {
+                throw new Error('discordIdentifier is required');
+            }
+            if (!Array.isArray(body.rolesAdded) || !Array.isArray(body.rolesRemoved)) {
+                throw new Error('rolesAdded and rolesRemoved must be arrays');
+            }
+            break;
+        case 'UsernameChanged':
+            if (!body.discordIdentifier || typeof body.newUsername !== 'string') {
+                throw new Error('discordIdentifier and newUsername are required');
+            }
+            break;
+        case 'PostMessage':
+            if (!body.channelId) {
+                throw new Error('channelId is required');
+            }
+            if (!body.content && !body.embed) {
+                throw new Error('content or embed is required');
+            }
+            break;
+    }
+
+    return body;
+}
