@@ -1,0 +1,17 @@
+# Portainer stack. Values come from the stack's "Environment variables" section (or a .env next to this file).
+services:
+  commandnet-discord-bot:
+    build: .
+    image: commandnet-discord-bot:latest
+    container_name: commandnet-discord-bot
+    restart: unless-stopped
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      FORUMIFY_BASE_URL: ${FORUMIFY_BASE_URL}
+      FORUMIFY_CLIENT_ID: ${FORUMIFY_CLIENT_ID}
+      FORUMIFY_CLIENT_SECRET: ${FORUMIFY_CLIENT_SECRET}
+      BOT_PUBLIC_URL: ${BOT_PUBLIC_URL}
+      BOT_SHARED_SECRET: ${BOT_SHARED_SECRET}
+      BOT_PORT: ${BOT_PORT:-4100}
+    ports:
+      - "${BOT_HOST_PORT:-4100}:${BOT_PORT:-4100}"
