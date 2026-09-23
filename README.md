@@ -22,7 +22,13 @@ call instead of assuming a single server, so it doesn't need to run per unit.
   - `{ type: 'PostMessage', guildId, channelId, content?, embed? }`
 - `GET /data?type=roles&guildId=X` - list that guild's roles, for forumify's role-mapping UI.
 
-### bot -> forumify (`Authorization: Bearer $FORUMIFY_API_TOKEN`)
+### bot -> forumify
+
+Auth is OAuth2 client credentials, not a static token: the bot exchanges
+`FORUMIFY_CLIENT_ID`/`FORUMIFY_CLIENT_SECRET` for a JWT via `POST /oauth/token`
+(`grant_type=client_credentials`), caches it, and refreshes it before it expires (forumify
+issues these with a 1 hour lifetime). Every call below sends that JWT as
+`Authorization: Bearer <token>`.
 
 - `POST /discord/register-bot` `{ endpoint, token }` - announces this bot's public URL and
   the token forumify should send back to it, on every `ready`.
@@ -40,6 +46,8 @@ and exposing `/discord/commands` + `/discord/commands/run`) is a separate, follo
 work this bot is built to interoperate with once it lands.
 
 ## Running
+
+For production (Docker / Portainer), see [INSTALL.md](INSTALL.md). Locally:
 
 ```bash
 npm install
