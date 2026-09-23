@@ -30,11 +30,15 @@ Auth is OAuth2 client credentials, not a static token: the bot exchanges
 issues these with a 1 hour lifetime). Every call below sends that JWT as
 `Authorization: Bearer <token>`.
 
-- `POST /discord/register-bot` `{ endpoint, token }` - announces this bot's public URL and
+All three live under forumify's `/api` prefix (API Platform's routing config puts every
+`ApiResource` there, unlike the plain Symfony controllers behind `/oauth/token` and the admin
+pages) - it's easy to miss since neither this plugin's own code nor its docs mention it.
+
+- `POST /api/discord/register-bot` `{ endpoint, token }` - announces this bot's public URL and
   the token forumify should send back to it, on every `ready`.
-- `GET /discord/commands` - fetches the slash command definitions forumify wants registered.
-- `POST /discord/commands/run` `{ name, options, discordUserId, guildId }` - forwards a slash
-  command interaction, returns `{ content?, embeds? }` to reply with.
+- `GET /api/discord/commands` - fetches the slash command definitions forumify wants registered.
+- `POST /api/discord/commands/run` `{ name, options, discordUserId, guildId }` - forwards a
+  slash command interaction, returns `{ content?, embeds? }` to reply with.
 
 ## Known gap
 

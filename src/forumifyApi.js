@@ -54,18 +54,18 @@ async function request(path, options = {}) {
  * Tells forumify where and how to reach this bot's own HTTP API.
  */
 export function registerBot() {
-    return request('/discord/register-bot', {
+    return request('/api/discord/register-bot', {
         method: 'POST',
         body: JSON.stringify({ endpoint: config.publicUrl, token: config.sharedSecret }),
     });
 }
 
 export function fetchCommandDefinitions() {
-    return request('/discord/commands');
+    return request('/api/discord/commands');
 }
 
 export function runCommand({ name, options, discordUserId, guildId }) {
-    return request('/discord/commands/run', {
+    return request('/api/discord/commands/run', {
         method: 'POST',
         body: JSON.stringify({ name, options, discordUserId, guildId }),
     });
