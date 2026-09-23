@@ -63,8 +63,11 @@ export function registerBot() {
     });
 }
 
-export function fetchCommandDefinitions() {
-    return request('/api/discord/commands');
+export async function fetchCommandDefinitions() {
+    const data = await request('/api/discord/commands');
+    // forumify always answers with a JSON-LD/Hydra collection ({ member: [...] }), even
+    // when asked for plain JSON - the Accept header above is apparently a no-op here.
+    return Array.isArray(data) ? data : (data.member ?? data['hydra:member'] ?? []);
 }
 
 export function runCommand({ name, options, discordUserId, guildId }) {
