@@ -38,6 +38,9 @@ async function request(path, options = {}) {
         ...options,
         headers: {
             'Content-Type': 'application/json',
+            // Without this, API Platform's GetCollection returns its default JSON-LD/Hydra
+            // shape ({ "hydra:member": [...] }), not the plain array callers expect.
+            Accept: 'application/json',
             Authorization: `Bearer ${token}`,
             ...options.headers,
         },
