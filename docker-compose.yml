@@ -3,6 +3,10 @@ services:
   commandnet-discord-bot:
     build: .
     image: commandnet-discord-bot:latest
+    # Built locally only, never published to a registry - without this, Portainer's
+    # "Pull and redeploy" tries to `docker pull` this name first and fails with
+    # "repository does not exist".
+    pull_policy: build
     container_name: commandnet-discord-bot
     restart: unless-stopped
     environment:
