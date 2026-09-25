@@ -21,6 +21,7 @@ call instead of assuming a single server, so it doesn't need to run per unit.
   - `{ type: 'UsernameChanged', guildId, discordUserId, newUsername }`
   - `{ type: 'PostMessage', guildId, channelId, content?, embed? }`
 - `GET /data?type=roles&guildId=X` - list that guild's roles, for forumify's role-mapping UI.
+- `GET /data?type=guildMembers&guildId=X` - list that guild's human members (`[{ id, username, displayName }]`, bots left out), for forumify's Discord member import. Uses the Server Members intent the bot already requests.
 
 ### bot -> forumify
 
