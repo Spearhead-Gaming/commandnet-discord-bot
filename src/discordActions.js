@@ -21,15 +21,46 @@ export async function applyUsernameChanged(client, payload) {
     await member.setNickname(payload.newUsername.slice(0, 32));
 }
 
-export async function applyPostMessage(client, payload) {
-    const channel = await client.channels.fetch(payload.channelId);
+async function fetchTextChannel(client, channelId) {
+    const channel = await client.channels.fetch(channelId);
     if (!channel?.isTextBased()) {
-        throw new Error(`Channel ${payload.channelId} is not text-based or not found`);
+        throw new Error(`Channel ${channelId} is not text-based or not found`);
     }
-    await channel.send({
+    return channel;
+}
+
+/**
+ * Returns where the message landed, so forumify can edit it later (e.g. a patrol post whose
+ * attendee list changes).
+ */
+export async function applyPostMessage(client, payload) {
+    const channel = await fetchTextChannel(client, payload.channelId);
+    const sent = await channel.send({
         content: payload.content ?? undefined,
         embeds: payload.embed ? [payload.embed] : [],
+        components: payload.components ?? [],
     });
+    return { channelId: channel.id, messageId: sent.id };
+}
+
+/**
+ * Only the parts present in the payload are changed; an empty components array is present,
+ * and removes the buttons.
+ */
+export async function applyEditMessage(client, payload) {
+    const channel = await fetchTextChannel(client, payload.channelId);
+    const message = await channel.messages.fetch(payload.messageId);
+    const changes = {};
+    if (payload.content != null) {
+        changes.content = payload.content;
+    }
+    if (payload.embed) {
+        changes.embeds = [payload.embed];
+    }
+    if (payload.components != null) {
+        changes.components = payload.components;
+    }
+    await message.edit(changes);
 }
 
 /**

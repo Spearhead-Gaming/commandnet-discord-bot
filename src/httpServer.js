@@ -2,6 +2,7 @@ import express from 'express';
 import { config } from './config.js';
 import { validateDataPayload } from './dataPayload.js';
 import {
+    applyEditMessage,
     applyPostMessage,
     applyRolesChanged,
     applyUsernameChanged,
@@ -37,7 +38,10 @@ export function createHttpServer(client) {
             } else if (payload.type === 'UsernameChanged') {
                 await applyUsernameChanged(client, payload);
             } else if (payload.type === 'PostMessage') {
-                await applyPostMessage(client, payload);
+                res.json(await applyPostMessage(client, payload));
+                return;
+            } else if (payload.type === 'EditMessage') {
+                await applyEditMessage(client, payload);
             }
             res.sendStatus(204);
         } catch (err) {
