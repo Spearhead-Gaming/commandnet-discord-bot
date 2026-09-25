@@ -21,6 +21,7 @@ call instead of assuming a single server, so it doesn't need to run per unit.
   - `{ type: 'UsernameChanged', guildId, discordUserId, newUsername }`
   - `{ type: 'PostMessage', guildId, channelId, content?, embed?, components? }` - answers `200 { channelId, messageId }` (every other type answers `204`), so forumify can edit the message later. `components` is a list of Discord action rows in Discord's own JSON format.
   - `{ type: 'EditMessage', guildId, channelId, messageId, content?, embed?, components? }` - changes only the parts sent; `components: []` removes the buttons.
+  - `{ type: 'DeleteMessage', guildId, channelId, messageId }` - deletes a message the bot posted. A message that is already gone counts as deleted.
 - `GET /data?type=roles&guildId=X` - list that guild's roles, for forumify's role-mapping UI.
 - `GET /data?type=guildMembers&guildId=X` - list that guild's human members (`[{ id, username, displayName }]`, bots left out), for forumify's Discord member import. Uses the Server Members intent the bot already requests.
 

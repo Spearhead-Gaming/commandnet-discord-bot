@@ -63,6 +63,24 @@ export async function applyEditMessage(client, payload) {
     await message.edit(changes);
 }
 
+// Discord's error code for "that message is already gone".
+const UNKNOWN_MESSAGE = 10008;
+
+/**
+ * Deletes a message the bot posted earlier (a patrol post whose patrol was deleted). A message
+ * that is already gone counts as deleted, so a retry, or someone removing it by hand, is fine.
+ */
+export async function applyDeleteMessage(client, payload) {
+    const channel = await fetchTextChannel(client, payload.channelId);
+    try {
+        await channel.messages.delete(payload.messageId);
+    } catch (err) {
+        if (err.code !== UNKNOWN_MESSAGE) {
+            throw err;
+        }
+    }
+}
+
 /**
  * The human members of a guild, for forumify's member import: bots are left out, and only the
  * fields the import needs are returned (Discord's own member objects are far larger).

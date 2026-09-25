@@ -1,4 +1,4 @@
-const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage', 'EditMessage']);
+const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage', 'EditMessage', 'DeleteMessage']);
 
 function requireComponentsArrayIfPresent(body) {
     if (body.components != null && !Array.isArray(body.components)) {
@@ -59,6 +59,11 @@ export function validateDataPayload(body) {
                 throw new Error('content, embed or components is required');
             }
             requireComponentsArrayIfPresent(body);
+            break;
+        case 'DeleteMessage':
+            if (!body.channelId || !body.messageId) {
+                throw new Error('channelId and messageId are required');
+            }
             break;
     }
 
