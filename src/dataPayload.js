@@ -44,5 +44,7 @@ export function validateDataPayload(body) {
             break;
     }
 
-    return body;
+    // Callers dispatch on payload.type, so hand back the discriminator even when it arrived
+    // as JSON-LD's @type - otherwise a valid payload matches no handler and is silently dropped.
+    return { ...body, type };
 }

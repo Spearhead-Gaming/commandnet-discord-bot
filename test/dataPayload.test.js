@@ -9,7 +9,8 @@ test('accepts a valid RolesChanged payload', () => {
 
 test('accepts a RolesChanged payload shaped as JSON-LD (@type instead of type)', () => {
     const payload = { '@type': 'RolesChanged', guildId: '1', discordIdentifier: '2', rolesAdded: ['3'], rolesRemoved: [] };
-    assert.deepEqual(validateDataPayload(payload), payload);
+    // httpServer dispatches on payload.type, so it has to come back populated.
+    assert.deepEqual(validateDataPayload(payload), { ...payload, type: 'RolesChanged' });
 });
 
 test('accepts a valid UsernameChanged payload', () => {
