@@ -57,10 +57,15 @@ container — check current networking before assuming which host/port is reacha
 ## Gotchas learned the hard way
 
 - **Slash commands only support string options today** (`interactionOptions.js`) — no typed
-  numbers/booleans/users/dates, no subcommands, no buttons/modals, replies are always public,
-  no DMs. A Patrol-support spec written for the wider ecosystem explicitly deferred typed
-  options/buttons/private replies to a "bot upgrade" phase for this reason — check for that
-  spec or a related branch before assuming richer interactions are already possible.
+  numbers/booleans/users/dates, no subcommands, no DMs, and slash command replies are always
+  public. A Patrol-support spec written for the wider ecosystem deferred typed options and the
+  richer interactions to a "bot upgrade" phase - check for that spec or a related branch
+  before assuming more is possible.
+- **Buttons and modals exist only for patrol posts** (`patrolButtons.js`, `interactionHandler.js`):
+  custom ids are `patrol:<join|leave|aar>:<patrolId>` and each just runs the matching existing
+  `command-net-patrol-*` command through forumify, replying privately (ephemeral). Submit AAR
+  opens a modal, then runs the AAR command with what was typed. Anything else with another
+  custom id is ignored.
 - Every command handler needs to resolve the calling Discord user to a Forumify member itself
   (via `forumifyApi.js`) — there's no shared permission/identity layer here, each command does
   its own check.

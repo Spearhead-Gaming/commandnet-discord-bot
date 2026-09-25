@@ -1,4 +1,10 @@
-const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage']);
+const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage', 'EditMessage']);
+
+function requireComponentsArrayIfPresent(body) {
+    if (body.components != null && !Array.isArray(body.components)) {
+        throw new Error('components must be an array of action rows');
+    }
+}
 
 /**
  * Validates the body forumify POSTs to /data. Every payload type carries guildId -
@@ -41,6 +47,18 @@ export function validateDataPayload(body) {
             if (!body.content && !body.embed) {
                 throw new Error('content or embed is required');
             }
+            requireComponentsArrayIfPresent(body);
+            break;
+        case 'EditMessage':
+            if (!body.channelId || !body.messageId) {
+                throw new Error('channelId and messageId are required');
+            }
+            // An empty components array is meaningful (it removes the buttons), so "present"
+            // means not null/undefined, not truthy.
+            if (!body.content && !body.embed && body.components == null) {
+                throw new Error('content, embed or components is required');
+            }
+            requireComponentsArrayIfPresent(body);
             break;
     }
 
