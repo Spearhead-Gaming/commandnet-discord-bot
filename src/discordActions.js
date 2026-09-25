@@ -32,6 +32,28 @@ export async function applyPostMessage(client, payload) {
     });
 }
 
+/**
+ * The human members of a guild, for forumify's member import: bots are left out, and only the
+ * fields the import needs are returned (Discord's own member objects are far larger).
+ */
+export function toMemberSummaries(members) {
+    return [...members.values()]
+        .filter((member) => !member.user.bot)
+        .map((member) => ({
+            id: member.id,
+            username: member.user.username,
+            displayName: member.displayName,
+        }));
+}
+
+/**
+ * Needs the privileged Server Members intent, which index.js already requests.
+ */
+export async function listGuildMembers(client, guildId) {
+    const guild = await client.guilds.fetch(guildId);
+    return toMemberSummaries(await guild.members.fetch());
+}
+
 export async function listGuildRoles(client, guildId) {
     const guild = await client.guilds.fetch(guildId);
     const roles = await guild.roles.fetch();

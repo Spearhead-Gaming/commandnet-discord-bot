@@ -5,6 +5,7 @@ import {
     applyPostMessage,
     applyRolesChanged,
     applyUsernameChanged,
+    listGuildMembers,
     listGuildRoles,
 } from './discordActions.js';
 
@@ -47,13 +48,14 @@ export function createHttpServer(client) {
     app.get('/data', async (req, res) => {
         try {
             const { type, guildId } = req.query;
-            if (type !== 'roles') {
+            const lists = { roles: listGuildRoles, guildMembers: listGuildMembers };
+            if (!Object.hasOwn(lists, type)) {
                 throw new Error(`Unknown type "${type}"`);
             }
             if (!guildId) {
                 throw new Error('guildId is required');
             }
-            res.json(await listGuildRoles(client, String(guildId)));
+            res.json(await lists[type](client, String(guildId)));
         } catch (err) {
             res.status(400).json({ error: err.message });
         }
