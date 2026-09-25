@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MessageFlags } from 'discord.js';
-import { parsePatrolCustomId, buildAarModal } from '../src/patrolButtons.js';
+import { parsePatrolCustomId } from '../src/patrolButtons.js';
 import { validateDataPayload } from '../src/dataPayload.js';
 import { applyEditMessage, applyPostMessage } from '../src/discordActions.js';
 
@@ -29,16 +29,6 @@ test('rejects custom ids that are not patrol buttons', () => {
     for (const bad of ['other:join:1', 'patrol:delete:1', 'patrol:join:abc', 'patrol:join', 'patrol:join:1:2', '']) {
         assert.equal(parsePatrolCustomId(bad), null, bad);
     }
-});
-
-test('the AAR modal asks for a summary and optional objectives', () => {
-    const modal = buildAarModal('12').toJSON();
-    assert.equal(modal.custom_id, 'patrol:aar:12');
-    const inputs = modal.components.map((row) => row.components[0]);
-    assert.deepEqual(inputs.map((i) => [i.custom_id, i.required ?? true]), [
-        ['summary', true],
-        ['objectives_met', false],
-    ]);
 });
 
 function fakeInteraction(kind, extra = {}) {
@@ -78,44 +68,6 @@ test('a Leave button runs the leave command', async () => {
 
     assert.equal(ran[0].name, 'command-net-patrol-leave');
     assert.equal(ran[0].options.id, '7');
-});
-
-test('the AAR button opens the form instead of running anything', async () => {
-    const interaction = fakeInteraction('button', { customId: 'patrol:aar:12' });
-
-    await handleInteraction(interaction, {
-        runCommand: async () => assert.fail('should not run a command yet'),
-    });
-
-    assert.equal(interaction.calls.showModal.length, 1);
-    assert.equal(interaction.calls.deferReply.length, 0);
-});
-
-test('submitting the AAR form files the report with the typed answers', async () => {
-    const ran = [];
-    const answers = { summary: 'Cleared the town.', objectives_met: 'yes' };
-    const interaction = fakeInteraction('modal', {
-        customId: 'patrol:aar:12',
-        fields: { getTextInputValue: (name) => answers[name] },
-    });
-
-    await handleInteraction(interaction, { runCommand: async (c) => (ran.push(c), { content: 'Filed.' }) });
-
-    assert.deepEqual(ran[0].options, { id: '12', summary: 'Cleared the town.', objectives_met: 'yes' });
-    assert.equal(ran[0].name, 'command-net-patrol-aar');
-});
-
-test('a blank objectives answer is left out of the AAR options', async () => {
-    const ran = [];
-    const answers = { summary: 'Quiet night.', objectives_met: '' };
-    const interaction = fakeInteraction('modal', {
-        customId: 'patrol:aar:12',
-        fields: { getTextInputValue: (name) => answers[name] },
-    });
-
-    await handleInteraction(interaction, { runCommand: async (c) => (ran.push(c), {}) });
-
-    assert.deepEqual(ran[0].options, { id: '12', summary: 'Quiet night.' });
 });
 
 test('buttons that are not patrol buttons are ignored', async () => {

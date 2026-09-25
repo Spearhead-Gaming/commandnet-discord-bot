@@ -64,8 +64,12 @@ container — check current networking before assuming which host/port is reacha
 - **Buttons and modals exist only for patrol posts** (`patrolButtons.js`, `interactionHandler.js`):
   custom ids are `patrol:<join|leave|aar>:<patrolId>` and each just runs the matching existing
   `command-net-patrol-*` command through forumify, replying privately (ephemeral). Submit AAR
-  opens a modal, then runs the AAR command with what was typed. Anything else with another
-  custom id is ignored.
+  is two modals because a Discord form holds at most 5 fields: the text fields of the
+  community's AAR template (`patrol:aar:<id>`), then a form with required Map and Intel file
+  uploads (`patrol:aarimg:<id>`, reached by a button). The text answers wait in memory
+  (`aarDrafts.js`, 30 minutes, lost on restart) and both steps go to the AAR command together,
+  with the uploads sent as Discord CDN links in `map_urls` / `intel_urls` (JSON arrays as
+  strings) for forumify to download. Anything else with another custom id is ignored.
 - Every command handler needs to resolve the calling Discord user to a Forumify member itself
   (via `forumifyApi.js`) — there's no shared permission/identity layer here, each command does
   its own check.
