@@ -57,7 +57,7 @@ container — check current networking before assuming which host/port is reacha
 ## Gotchas learned the hard way
 
 - **Slash commands only support string options today** (`interactionOptions.js`) — no typed
-  numbers/booleans/users/dates, no subcommands, no DMs, and slash command replies are always
+  numbers/booleans/users/dates, no subcommands, and slash command replies are always
   public. A Patrol-support spec written for the wider ecosystem deferred typed options and the
   richer interactions to a "bot upgrade" phase - check for that spec or a related branch
   before assuming more is possible.

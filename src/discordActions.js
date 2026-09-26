@@ -64,6 +64,45 @@ export async function applyEditMessage(client, payload) {
 }
 
 /**
+ * A single-use, 7-day invite by default, so the link is only good for the member it was sent
+ * to. The bot needs Create Invite in the channel.
+ */
+export async function applyCreateInvite(client, payload) {
+    const channel = await client.channels.fetch(payload.channelId);
+    if (!channel?.createInvite) {
+        throw new Error(`Channel ${payload.channelId} cannot have invites or was not found`);
+    }
+    const invite = await channel.createInvite({
+        maxAge: payload.maxAgeSeconds ?? 604800,
+        maxUses: payload.maxUses ?? 1,
+        unique: true,
+        reason: payload.reason ?? undefined,
+    });
+    return { code: invite.code, url: invite.url };
+}
+
+// discord.js error code -> the reason forumify gets; anything else is reported as 'failed'.
+const DM_FAILURES = { 50007: 'dms_closed', 10013: 'unknown_user' };
+
+/**
+ * Never throws: a DM that can't be delivered is an expected outcome, and forumify falls back
+ * to another way of telling the member.
+ */
+export async function applyDirectMessage(client, payload) {
+    try {
+        const user = await client.users.fetch(payload.discordUserId);
+        await user.send({
+            content: payload.content ?? undefined,
+            embeds: payload.embed ? [payload.embed] : [],
+        });
+        return { ok: true };
+    } catch (err) {
+        console.error(`Failed to DM ${payload.discordUserId}:`, err.message);
+        return { ok: false, reason: DM_FAILURES[err.code] ?? 'failed' };
+    }
+}
+
+/**
  * The human members of a guild, for forumify's member import: bots are left out, and only the
  * fields the import needs are returned (Discord's own member objects are far larger).
  */
