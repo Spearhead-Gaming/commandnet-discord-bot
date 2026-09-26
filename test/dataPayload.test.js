@@ -34,3 +34,14 @@ test('rejects a missing guildId', () => {
 test('rejects PostMessage without content or embed', () => {
     assert.throws(() => validateDataPayload({ type: 'PostMessage', guildId: '1', channelId: '2' }));
 });
+
+test('CreateInvite needs a channel', () => {
+    assert.throws(() => validateDataPayload({ type: 'CreateInvite', guildId: '1' }));
+    validateDataPayload({ type: 'CreateInvite', guildId: '1', channelId: '2' });
+});
+
+test('DirectMessage needs a user and content or embed', () => {
+    assert.throws(() => validateDataPayload({ type: 'DirectMessage', guildId: '1', content: 'hi' }));
+    assert.throws(() => validateDataPayload({ type: 'DirectMessage', guildId: '1', discordUserId: '2' }));
+    validateDataPayload({ type: 'DirectMessage', guildId: '1', discordUserId: '2', content: 'hi' });
+});

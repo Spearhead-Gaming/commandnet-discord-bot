@@ -27,7 +27,7 @@ reach the bot's HTTP API on port 4100 (`/data` and `/ready`) at the URL you set 
 3. **OAuth2 → URL Generator**:
    - Scopes: `bot`, `applications.commands`
    - Bot permissions: **Manage Roles**, **Manage Nicknames**, **View Channels**,
-     **Send Messages**, **Embed Links**
+     **Send Messages**, **Embed Links**, **Create Instant Invite** (for single-use invites DMed to transferred members)
    - Open the generated URL and invite the bot to the community server, then to **every unit
      server**. It's one bot for all of them.
 4. In each server, go to **Server Settings → Roles** and drag the bot's role **above** every role
