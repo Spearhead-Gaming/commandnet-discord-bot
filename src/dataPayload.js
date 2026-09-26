@@ -1,4 +1,12 @@
-const KNOWN_TYPES = new Set(['RolesChanged', 'UsernameChanged', 'PostMessage', 'EditMessage', 'DeleteMessage']);
+const KNOWN_TYPES = new Set([
+    'RolesChanged',
+    'UsernameChanged',
+    'PostMessage',
+    'EditMessage',
+    'DeleteMessage',
+    'CreateInvite',
+    'DirectMessage',
+]);
 
 function requireComponentsArrayIfPresent(body) {
     if (body.components != null && !Array.isArray(body.components)) {
@@ -63,6 +71,19 @@ export function validateDataPayload(body) {
         case 'DeleteMessage':
             if (!body.channelId || !body.messageId) {
                 throw new Error('channelId and messageId are required');
+            }
+            break;
+        case 'CreateInvite':
+            if (!body.channelId) {
+                throw new Error('channelId is required');
+            }
+            break;
+        case 'DirectMessage':
+            if (!body.discordUserId) {
+                throw new Error('discordUserId is required');
+            }
+            if (!body.content && !body.embed) {
+                throw new Error('content or embed is required');
             }
             break;
     }

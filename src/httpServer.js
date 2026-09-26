@@ -2,7 +2,9 @@ import express from 'express';
 import { config } from './config.js';
 import { validateDataPayload } from './dataPayload.js';
 import {
+    applyCreateInvite,
     applyDeleteMessage,
+    applyDirectMessage,
     applyEditMessage,
     applyPostMessage,
     applyRolesChanged,
@@ -40,6 +42,12 @@ export function createHttpServer(client) {
                 await applyUsernameChanged(client, payload);
             } else if (payload.type === 'PostMessage') {
                 res.json(await applyPostMessage(client, payload));
+                return;
+            } else if (payload.type === 'CreateInvite') {
+                res.json(await applyCreateInvite(client, payload));
+                return;
+            } else if (payload.type === 'DirectMessage') {
+                res.json(await applyDirectMessage(client, payload));
                 return;
             } else if (payload.type === 'EditMessage') {
                 await applyEditMessage(client, payload);
