@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { validateDataPayload } from './dataPayload.js';
 import {
     applyCreateInvite,
+    applyDeleteMessage,
     applyDirectMessage,
     applyEditMessage,
     applyPostMessage,
@@ -50,6 +51,8 @@ export function createHttpServer(client) {
                 return;
             } else if (payload.type === 'EditMessage') {
                 await applyEditMessage(client, payload);
+            } else if (payload.type === 'DeleteMessage') {
+                await applyDeleteMessage(client, payload);
             }
             res.sendStatus(204);
         } catch (err) {
