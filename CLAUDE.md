@@ -12,7 +12,7 @@ Built for this one community, not a general-purpose skeleton.
 ## The ecosystem
 
 Sibling repos (PHP, `G:\Github Repos`): **commandnet-plugin**, **commandnet-s3-plugin**,
-**command-net-theme**, **forumify-id-card-plugin**. The one this bot actually talks to is
+**command-net-theme**, **milsim-id-card-plugin**. The one this bot actually talks to is
 **commandnet-discord-plugin** — a Forumify plugin, *not* a Discord library — over the HTTP
 contract in the README (forumify → bot: `/data`, `/ready`; bot → forumify:
 `/discord/register-bot`, `/discord/commands`, `/discord/commands/run`).
