@@ -63,6 +63,24 @@ export async function applyEditMessage(client, payload) {
     await message.edit(changes);
 }
 
+// Discord's error code for "that message is already gone".
+const UNKNOWN_MESSAGE = 10008;
+
+/**
+ * Deletes a message the bot posted earlier (a patrol post whose patrol was deleted). A message
+ * that is already gone counts as deleted, so a retry, or someone removing it by hand, is fine.
+ */
+export async function applyDeleteMessage(client, payload) {
+    const channel = await fetchTextChannel(client, payload.channelId);
+    try {
+        await channel.messages.delete(payload.messageId);
+    } catch (err) {
+        if (err.code !== UNKNOWN_MESSAGE) {
+            throw err;
+        }
+    }
+}
+
 /**
  * A single-use, 7-day invite by default, so the link is only good for the member it was sent
  * to. The bot needs Create Invite in the channel.

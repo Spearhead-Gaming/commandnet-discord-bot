@@ -37,6 +37,18 @@ call instead of assuming a single server, so it doesn't need to run per unit.
 
 This bot's HTTP API. Every request requires `Authorization: Bearer $BOT_SHARED_SECRET`.
 
+- `GET /ready` - health check.
+- `POST /data` - push a change. Body is one of:
+  - `{ type: 'RolesChanged', guildId, discordUserId, rolesAdded: [snowflake], rolesRemoved: [snowflake] }`
+  - `{ type: 'UsernameChanged', guildId, discordUserId, newUsername }`
+  - `{ type: 'PostMessage', guildId, channelId, content?, embed?, components? }` - answers `200 { channelId, messageId }` (`CreateInvite` and `DirectMessage` also answer with data; every other type answers `204`), so forumify can edit the message later. `components` is a list of Discord action rows in Discord's own JSON format.
+  - `{ type: 'CreateInvite', guildId, channelId, maxAgeSeconds?, maxUses?, reason? }` - creates an invite to that channel's server, single-use and 7 days by default (`maxAgeSeconds` 604800, `maxUses` 1), and answers `200 { code, url }`. The bot needs the **Create Invite** permission in that channel, so pick the channel accordingly.
+  - `{ type: 'DirectMessage', guildId, discordUserId, content?, embed? }` - DMs a user. Never fails the request for an undeliverable DM: it answers `200 { ok: true }` or `200 { ok: false, reason }` with `reason` one of `dms_closed`, `unknown_user`, `failed`. The user must share a server with the bot.
+  - `{ type: 'EditMessage', guildId, channelId, messageId, content?, embed?, components? }` - changes only the parts sent; `components: []` removes the buttons.
+  - `{ type: 'DeleteMessage', guildId, channelId, messageId }` - deletes a message the bot posted. A message that is already gone counts as deleted.
+- `GET /data?type=roles&guildId=X` - list that guild's roles, for forumify's role-mapping UI.
+- `GET /data?type=guildMembers&guildId=X` - list that guild's human members (`[{ id, username, displayName }]`, bots left out), for forumify's Discord member import. Uses the Server Members intent the bot already requests.
+
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/ready` | Health check |
